@@ -19,7 +19,7 @@ void app_main(void)
     max30105_t sensor;
     ESP_ERROR_CHECK(max30105_init(&sensor, I2C_NUM_0, MAX30105_ADDRESS, 100000));
 
-  //Setup to sense up to 18 inches, max LED brightness
+    //Setup to sense up to 18 inches, max LED brightness
     uint8_t ledBrightness = 0xFF; //Options: 0=Off to 255=50mA
     uint8_t sampleAverage = 4; //Options: 1, 2, 4, 8, 16, 32
     uint8_t ledMode = 2; //Options: 1 = Red only, 2 = Red + IR, 3 = Red + IR + Green
@@ -32,6 +32,7 @@ void app_main(void)
     uint32_t startTime = esp_timer_get_time() / 1000; // Get start time in milliseconds
     while (1)
     {
+        uint16_t num_of_samples =0;
         if (max30105_check(&sensor, &num_of_samples) == ESP_OK)
         {
             while (max30105_available(&sensor))

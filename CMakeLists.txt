@@ -1,2 +1,2 @@
-idf_component_register(SRCS "max30105.c"
+idf_component_register(SRCS "spo2_algorithm.c" "heartRate.c" "max30105.c"
                     INCLUDE_DIRS "include")
