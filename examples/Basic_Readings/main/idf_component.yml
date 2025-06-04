@@ -1,5 +1,4 @@
 ## IDF Component Manager Manifest File
 dependencies:
   nikhil-robinson/max30105:
-    version: '^1.0.0'
     override_path: '../../../'

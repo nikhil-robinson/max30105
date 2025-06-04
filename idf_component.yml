@@ -1,9 +1,13 @@
 version: "1.0.0"
 license: "MIT"
-idf:
-    version: ">5.0.0"
 description: "An ESP-IDF Library for the MAX3015 particle sensor and MAX30102 Pulse Ox sensor"
 url: "https://github.com/nikhil-robinson/max30105.git"
+
+dependencies:
+  i2c_bus:
+    public: true
+  idf: '>=4.4'
+  cmake_utilities: "0.*"
 
 tags:
   - MAX30105

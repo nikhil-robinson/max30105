@@ -58,6 +58,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include "helper.h"
 
 
 bool checkForBeat(int32_t sample);

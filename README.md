@@ -31,9 +31,8 @@ This library uses **I2C**. Ensure you connect the sensor to the correct SDA and 
 
 ## 🧰 Requirements
 
-- ESP32 or ESP32-S series board  
-- ESP-IDF v4.x or later  
-- I2C driver enabled in `menuconfig`  
+- ESP32 or ESP32x series board  
+- ESP-IDF v4.0 or later   
 - MAX30102 or MAX30105 sensor module  
 
 ---
@@ -44,13 +43,13 @@ Clone this repository inside your ESP-IDF project under the `components` folder:
 
 ```bash
 cd your_project/components
-git clone https://github.com/yourusername/esp-idf-max3010x.git
+git clone https://github.com/nikhil-robinson/max30105.git
 ````
 
 Then include the component in your `CMakeLists.txt`:
 
 ```cmake
-set(EXTRA_COMPONENT_DIRS components/esp-idf-max3010x)
+set(EXTRA_COMPONENT_DIRS components/max30105)
 ```
 
 Or add to `idf_component_register` if inside a monolithic `CMakeLists.txt`.
@@ -60,23 +59,43 @@ Or add to `idf_component_register` if inside a monolithic `CMakeLists.txt`.
 ## 🧪 Example Usage
 
 ```c
-#include "max3010x.h"
+#include "max30105.h"
+#include "i2c_bus.h"
 
-max3010x_config_t config = {
-    .i2c_port = I2C_NUM_0,
-    .sda_io_num = 21,
-    .scl_io_num = 22,
-    .i2c_frequency = 400000
-};
+#define I2C_MASTER_SCL_IO   (gpio_num_t)15       /*!< gpio number for I2C master clock */
+#define I2C_MASTER_SDA_IO   (gpio_num_t)16       /*!< gpio number for I2C master data  */
+#define I2C_MASTER_FREQ_HZ  100000               /*!< I2C master clock frequency */
+#define DATA_LENGTH         64                   /*!<Data buffer length for test buffer*/
 
-if (max3010x_init(&config) == ESP_OK) {
-    printf("MAX3010x initialized.\n");
 
-    max3010x_sample_t sample;
-    if (max3010x_read_fifo(&sample) == ESP_OK) {
-        printf("Red: %lu IR: %lu Green: %lu\n",
-               sample.red, sample.ir, sample.green);
-    }
+void app_main(void) {
+    // Configure I2C
+    i2c_config_t conf = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = I2C_MASTER_SDA_IO,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_io_num = I2C_MASTER_SCL_IO,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = I2C_MASTER_FREQ_HZ,
+    };
+
+    i2c_bus_handle_t i2c0_bus = i2c_bus_create(I2C_NUM_0, &conf);
+
+    // Initialize MAX30105
+    max30105_t sensor;
+    ESP_ERROR_CHECK(max30105_init(&sensor, i2c0_bus, MAX30105_ADDRESS, 100000));
+    ESP_ERROR_CHECK(max30105_setup(&sensor, 0x1F, 4, 3, 400, 411, 4096));
+
+
+   while (1)
+   {
+        uint32_t red_value = max30105_get_red(&sensor);
+        uint32_t ir_value = max30105_get_ir(&sensor);
+        uint32_t green_value = max30105_get_green(&sensor);
+        printf("R[%lu], IR[%lu], G[%lu]\n", red_value, ir_value, green_value);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 second
+   }
+
 }
 ```
 

@@ -40,12 +40,14 @@ static const char *TAG = "MAX30105";
 
 // Low-level I2C Communication
 static esp_err_t max30105_read_register8(max30105_t *sensor, uint8_t reg, uint8_t *value) {
-    return i2c_master_write_read_device(sensor->i2c_port, sensor->i2c_addr, &reg, 1, value, 1, pdMS_TO_TICKS(100));
+    // return i2c_master_write_read_device(sensor->i2c_port, sensor->i2c_addr, &reg, 1, value, 1, pdMS_TO_TICKS(100));
+    return i2c_bus_read_bytes(sensor->i2c_device, reg, 1, value);
 }
 
 static esp_err_t max30105_write_register8(max30105_t *sensor, uint8_t reg, uint8_t value) {
     uint8_t data[2] = {reg, value};
-    return i2c_master_write_to_device(sensor->i2c_port, sensor->i2c_addr, data, 2, pdMS_TO_TICKS(100));
+    // return i2c_master_write_to_device(sensor->i2c_port, sensor->i2c_addr, data, 2, pdMS_TO_TICKS(100));
+    return i2c_bus_write_bytes(sensor->i2c_device , reg, 1, data);
 }
 
 static esp_err_t max30105_bit_mask(max30105_t *sensor, uint8_t reg, uint8_t mask, uint8_t thing) {
@@ -58,8 +60,8 @@ static esp_err_t max30105_bit_mask(max30105_t *sensor, uint8_t reg, uint8_t mask
 }
 
 // Initialization
-esp_err_t max30105_init(max30105_t *sensor, i2c_port_t i2c_port, uint8_t i2c_addr, uint32_t i2c_speed) {
-    sensor->i2c_port = i2c_port;
+esp_err_t max30105_init(max30105_t *sensor, i2c_bus_handle_t i2c_bus, uint8_t i2c_addr, uint32_t i2c_speed) {
+    sensor->i2c_device = i2c_bus_device_create(i2c_bus, i2c_addr, 0);
     sensor->i2c_addr = i2c_addr;
     sensor->active_leds = 0;
     sensor->revision_id = 0;
@@ -348,6 +350,7 @@ esp_err_t max30105_check(max30105_t *sensor, uint16_t *num_samples) {
         int bytes_to_read = number_of_samples * sensor->active_leds * 3;
 
         uint8_t reg = MAX30105_FIFODATA;
+#if 0
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
         i2c_master_write_byte(cmd, (sensor->i2c_addr << 1) | I2C_MASTER_WRITE, true);
@@ -356,6 +359,7 @@ esp_err_t max30105_check(max30105_t *sensor, uint16_t *num_samples) {
         ret = i2c_master_cmd_begin(sensor->i2c_port, cmd, pdMS_TO_TICKS(100));
         i2c_cmd_link_delete(cmd);
         if (ret != ESP_OK) return ret;
+#endif
 
         while (bytes_to_read > 0) {
             int to_get = bytes_to_read;
@@ -365,7 +369,8 @@ esp_err_t max30105_check(max30105_t *sensor, uint16_t *num_samples) {
             bytes_to_read -= to_get;
 
             uint8_t buffer[I2C_BUFFER_LENGTH];
-            ret = i2c_master_read_from_device(sensor->i2c_port, sensor->i2c_addr, buffer, to_get, pdMS_TO_TICKS(100));
+            // ret = i2c_master_read_from_device(sensor->i2c_port, sensor->i2c_addr, buffer, to_get, pdMS_TO_TICKS(100));
+            ret = i2c_bus_read_bytes(sensor->i2c_device, reg, to_get, buffer);
             if (ret != ESP_OK) return ret;
 
             int offset = 0;

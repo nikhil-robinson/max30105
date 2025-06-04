@@ -34,7 +34,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <esp_err.h>
-#include <driver/i2c.h>
+#include "i2c_bus.h"
+#include "helper.h"
 
 #define MAX30105_ADDRESS          0x57 // 7-bit I2C Address
 #define I2C_BUFFER_LENGTH         32   // Default buffer size for ESP32
@@ -171,7 +172,7 @@ typedef struct {
 
 // MAX30105 device structure
 typedef struct {
-    i2c_port_t i2c_port; // I2C port number
+    i2c_bus_device_handle_t i2c_device; // I2C device handle
     uint8_t i2c_addr;    // I2C address
     uint8_t active_leds; // Number of active LEDs
     uint8_t revision_id; // Revision ID
@@ -179,7 +180,7 @@ typedef struct {
 } max30105_t;
 
 // Initialization and Configuration
-esp_err_t max30105_init(max30105_t *sensor, i2c_port_t i2c_port, uint8_t i2c_addr, uint32_t i2c_speed);
+esp_err_t max30105_init(max30105_t *sensor, i2c_bus_handle_t i2c_bus, uint8_t i2c_addr, uint32_t i2c_speed);
 esp_err_t max30105_setup(max30105_t *sensor, uint8_t power_level, uint8_t sample_average, uint8_t led_mode,
                          int sample_rate, int pulse_width, int adc_range);
 
