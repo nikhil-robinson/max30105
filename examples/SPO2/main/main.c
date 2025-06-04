@@ -5,7 +5,7 @@
 #define I2C_MASTER_SCL_IO   (gpio_num_t)15       /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO   (gpio_num_t)16       /*!< gpio number for I2C master data  */
 #define I2C_MASTER_FREQ_HZ  100000               /*!< I2C master clock frequency */
-#define DATA_LENGTH         64                   /*!<Data buffer length for test buffer*/
+
 
 uint32_t irBuffer[100];  // infrared LED sensor data
 uint32_t redBuffer[100]; // red LED sensor data

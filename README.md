@@ -65,7 +65,7 @@ Or add to `idf_component_register` if inside a monolithic `CMakeLists.txt`.
 #define I2C_MASTER_SCL_IO   (gpio_num_t)15       /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO   (gpio_num_t)16       /*!< gpio number for I2C master data  */
 #define I2C_MASTER_FREQ_HZ  100000               /*!< I2C master clock frequency */
-#define DATA_LENGTH         64                   /*!<Data buffer length for test buffer*/
+
 
 
 void app_main(void) {
